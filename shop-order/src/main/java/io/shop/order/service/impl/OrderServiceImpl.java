@@ -5,6 +5,8 @@ import io.shop.bean.Order;
 import io.shop.bean.OrderItem;
 import io.shop.bean.Product;
 import io.shop.bean.User;
+import io.shop.order.fegin.ProductService;
+import io.shop.order.fegin.UserService;
 import io.shop.order.mapper.OrderItemMapper;
 import io.shop.order.mapper.OrderMapper;
 import io.shop.order.service.OrderService;
@@ -36,9 +38,10 @@ public class OrderServiceImpl implements OrderService {
 
     @Autowired
     private DiscoveryClient discoveryClient;
-
-    private String userServer = "server-user";
-    private String productServer = "server-product";
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ProductService productService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -47,12 +50,12 @@ public class OrderServiceImpl implements OrderService {
             throw new RuntimeException("参数异常: " + JSONObject.toJSONString(orderParams));
         }
         // 1. 获取用户信息
-        User user = restTemplate.getForObject("http://" + userServer + "/user/get/" + orderParams.getUserId(), User.class);
+        User user = userService.getUser(orderParams.getUserId());
         if (user == null){
             throw new RuntimeException("未获取到用户信息: " + JSONObject.toJSONString(orderParams));
         }
         // 2. 获取商品信息
-        Product product = restTemplate.getForObject("http://" + productServer + "/product/get/" + orderParams.getProductId(), Product.class);
+        Product product = productService.getProduct(orderParams.getProductId());
         if (product == null){
             throw new RuntimeException("未获取到商品信息: " + JSONObject.toJSONString(orderParams));
         }
@@ -73,7 +76,7 @@ public class OrderServiceImpl implements OrderService {
         orderItem.setProPrice(product.getProPrice());
         orderItemMapper.insert(orderItem);
 
-        Result<Integer> result = restTemplate.getForObject("http://" + productServer + "/product/update_count/" + orderParams.getProductId() + "/" + orderParams.getCount(), Result.class);
+        Result<Integer> result = productService.updateCount(orderParams.getProductId(), orderParams.getCount());
         if (result.getCode() != HttpCode.SUCCESS){
             throw new RuntimeException("库存扣减失败");
         }
