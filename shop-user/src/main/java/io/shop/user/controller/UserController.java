@@ -18,7 +18,9 @@ public class UserController {
 
     @GetMapping(value = "/get/{uid}")
     public User getUser(@PathVariable("uid") Long uid){
+        System.out.println(uid);
         User user = userService.getUserById(uid);
+        System.out.println(user.getUsername());
         log.info("获取到的用户信息为：{}", JSONObject.toJSONString(user));
         return user;
     }

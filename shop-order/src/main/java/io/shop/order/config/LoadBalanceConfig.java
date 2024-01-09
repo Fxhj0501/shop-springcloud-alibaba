@@ -16,8 +16,8 @@ public class LoadBalanceConfig {
         return new RestTemplate();
     }
     // 配置负载均衡策略
-    @Bean
-    public IRule iRule(){
-        return new RandomRule();
-    }
+//    @Bean
+//    public IRule iRule(){
+//        return new RandomRule();
+//    }
 }
