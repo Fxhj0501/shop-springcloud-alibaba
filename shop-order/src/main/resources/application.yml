@@ -48,6 +48,7 @@ spring:
             transport:
                 dashboard: 127.0.0.1:8888
                 port: 9999
+            web-context-unify: false
 
 
     mybatis-plus:
